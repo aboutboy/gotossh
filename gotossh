@@ -11,6 +11,7 @@
 # $ 'test_server||192.168.0.1||root||password||22||0||test-service'  > ~/.gotossh_config
 # $ gotossh   // List Server
 # $ gotossh 1 // Login Num n Server
+# PWD encryption : echo "password" | openssl enc -aes-256-cbc -e -K <PASS_KEY> -iv <initialization_vector> -base64
 
 
 VERSION=3.1
@@ -369,13 +370,8 @@ if [ "${1}" == "-l" ]; then
 	exit
 fi
 
-# -k 命令
-if [ "${1}" == "-k" ]; then
-    PASS_KEY=${2}
-fi
-
 # 读取选择的服务器
-if [ -n "${1}" ] && [ "${1}" != "-k" ]; then
+if [ -n "${1}" ]; then
     NO=${1}
 else
     NO=0
@@ -394,6 +390,9 @@ if [ -z "${SERVER_INFO}" ]; then
 	echoTipsInfo "Server Info Not Found!"
 	exit
 fi
+
+echo -e 'Password Decryption Key:\c'
+read PASS_KEY
 
 LINK_NAME=$(echo ${SERVER_INFO} | sed 's/||/ /g' | awk  '{ print $1 }')
 IP=$(echo ${SERVER_INFO} | sed 's/||/ /g' | awk  '{ print $2 }')
